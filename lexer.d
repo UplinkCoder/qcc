@@ -33,7 +33,7 @@ struct Lexer {
 			auto tok = getToken;
 			writeln("Token :",tok);
 			if (tok.type != 0) {
-				ret ~= getToken();
+				ret ~= tok;
 			} else {
 				assert(0,"INVALID TOKEN");
 			}
@@ -53,12 +53,11 @@ struct Lexer {
 		 writeln("first char ",c ," at ", pos);
 		 switch (c) {
 				case '#' :
-					pos++;
-					col++;
 					return lex_pp();
 				case '<','>','[',']','{','}','(',')','.',';','*' :
-					++pos;
+					pos++;
 					return Token(c,line,col++);
+				case 'a' .. 'z', 
 				case ' ','\t' :
 					pos++;
 					col++;
@@ -74,18 +73,16 @@ struct Lexer {
 	 }
 
 	 Token lex_pp() {
-		 import std.conv;
-		 import std.stdio;
-		 writeln(_source);
-		 switch (_source) with (TokenType) {
-			 case "include" :
+		import std.conv;
+		switch (_source[0 .. "#include".length]) with (TokenType) {
+			 case "#include" :
 				 writeln("case");
 				 auto tok = Token(PP_INCLUDE, line, col);
-				 pos += "include".length;
-				 col += "include".length;
+				 pos += "#include ".length;
+				 col += "#include ".length;
 				 writeln("before returning PP_INCLUDE");
 				 return tok;
-			default : assert(0, "no know PreProcessor Decl at " ~ to!string(line) ~ ":" ~ to!string(col));
+			default : assert(0, "no know PreProcessor Decl at " ~ to!string(line) ~ ":" ~ to!string(col)~ _source);
 		 }
 	 }
 }

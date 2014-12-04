@@ -9,6 +9,7 @@ void main(string[] args)
 
 	immutable string source = `
 ()
+<)>
 #include <stdio.h>
 int main(int argc, char *argv[]) {
 	printf("Hello World");
