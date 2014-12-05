@@ -8,9 +8,7 @@ void main(string[] args)
 	writeln("Welcome to the QCC Compiler \n Test Input :");
 
 	immutable string source = `
-()
-<)>
-#include <stdio.h>
+#include <"stdio.h">
 int main(int argc, char *argv[]) {
 	printf("Hello World");
 	return 0;

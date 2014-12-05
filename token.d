@@ -19,6 +19,7 @@ enum TokenType : int {
 	STRING_LITERAL = -3 ,	 // needs context
 	INTEGER_LITERAL = -4, // needs context
 	DOT = '.',
+	COMMA = ',',
 	SEMICOLON = ';',
 	STAR = '*',
 	INT = -5,
@@ -29,11 +30,18 @@ enum TokenType : int {
 }
 
 struct Token {
-	int line;
-	int col;
-	
 	TokenType type;
-	
+	size_t string_id;
+	int line = -1;
+	int col = -1;
+
+	this(TokenType type, size_t string_id, int line, int col) {
+		this.type = type;
+		this.string_id = string_id; 
+		this.line = line;
+		this.col = col;
+	}
+
 	this(char c, int line, int col) {
 		import std.conv;
 		this.type = to!(TokenType)(c);
