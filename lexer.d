@@ -29,17 +29,14 @@ struct Lexer {
 	Token[] lex(string source) {
 		this.source = source;
 		import std.stdio;
-		writeln(this.source);
 		Token[] ret;
 		while(pos < source.length) {
 			auto tok = getToken;
-			writeln("Token :",tok);
 			if (tok.type != 0) {
 				ret ~= tok;
 			} else {
 				assert(0,"INVALID TOKEN");
 			}
-			writeln(ret);
 		}
 		this.source = "";
 		this.line = 0;
@@ -58,6 +55,7 @@ struct Lexer {
 	}
 
 	Token getToken() {
+		if (pos>=source.length) return Token(cast(char)-8,line,col);
 		_source = source [pos .. $];
 		char c = _source[0];
 		import std.stdio;
@@ -73,9 +71,12 @@ struct Lexer {
 			case '"' : 
 				return lex_string();
 				
-//			case '_', 'a', 'b', 'c', 'd', 'e', 'f','g', 'h', 'i', 'j', 'k', 'l', 'm',
-//					'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' :
-//				return lex_identifier_or_keyword();
+			case '_', 'a', 'b', 'c', 'd', 'e', 'f','g', 'h', 'i', 'j', 'k', 'l', 'm',
+					'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' :
+				return lex_identifier();
+
+			case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' :
+				return lex_integer_literal();
 				
 			case ' ','\t' :
 				pos++;
@@ -98,7 +99,6 @@ struct Lexer {
 		// use std.algorithm.startsWith
 		switch (_source[0 .. "include".length]) with (TokenType) {
 			case "include" :
-				writeln("case");
 				auto tok = Token(PP_INCLUDE, line, col);
 				pos += "#include".length;
 				col += "#include".length;
@@ -111,24 +111,57 @@ struct Lexer {
 	Token lex_string() {
 		string str;
 		int _col = col;
+
 		assert(_source[0] == '"');
 		pos++;
 		col++;
 		_source = _source[1 .. $];
 
 		while (_source[0] != '"') {
+			str ~= _source[0];
 			pos++; 
 			col++;
 			_source = _source[1 .. $];
-			str ~= _source[0];
 		}
 		pos++;
 		col++;
 		_source = _source[1 .. $];
 
 		auto strId = getStringId(str);
-		writeln(pos);
 
 		return Token(TokenType.STRING_LITERAL, strId, line, _col);	
+	}
+
+	Token lex_identifier() {
+		string str;
+		int _col = col;
+		while (_source[0] != ' ' && _source[0] != ',' && _source[0] != '(' &&  _source[0] != ')' && _source[0] != ';')  {
+			str ~= _source[0];
+			pos++; 
+			col++;
+			_source = _source[1 .. $];
+		}
+
+		pos++;
+		col++;
+		_source = _source[1 .. $];
+		
+		auto strId = getStringId(str);
+		
+		return Token(TokenType.IDENTIFIER, strId, line, _col);
+	}
+
+	Token lex_integer_literal() {
+		int value;
+		int _col = col;
+		while (_source[0] != ' ' && _source[0] != ',' && _source[0] != '(' &&  _source[0] != ')' && _source[0] != ';')  {
+			pos++;
+			col++;
+			value += (_source[0] - '0') * ((col - _col)^10);
+			_source = _source[1 .. $];
+		}
+
+		return Token(TokenType.INTEGER_LITERAL, value, line, col);
+
 	}
 }

@@ -7,8 +7,8 @@ enum TokenType : int {
 	BOF = -9,
 
 	PP_INCLUDE = 1, 
-	ANGLE_BRACKET_OPEN = '<',
-	ANGLE_BRACKET_CLOSE = '>',
+//	ANGLE_BRACKET_OPEN = '<',
+//	ANGLE_BRACKET_CLOSE = '>',
 	BRACKET_OPEN = '[',
 	BRACKET_CLOSE= ']',
 	CURLY_BRACE_OPEN = '{',
@@ -26,18 +26,18 @@ enum TokenType : int {
 	CHAR = -6,
 	RETURN = -7,
 
-	EOF = -8
+	EOF = cast(char)-8
 }
 
 struct Token {
 	TokenType type;
-	size_t string_id;
+	size_t string_id_or_value;
 	int line = -1;
 	int col = -1;
 
-	this(TokenType type, size_t string_id, int line, int col) {
+	this(TokenType type, size_t string_id_or_value, int line, int col) {
 		this.type = type;
-		this.string_id = string_id; 
+		this.string_id_or_value = string_id_or_value; 
 		this.line = line;
 		this.col = col;
 	}
