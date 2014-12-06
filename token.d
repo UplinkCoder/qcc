@@ -43,9 +43,15 @@ struct Token {
 
 	this(char c, int line, int col) {
 		import std.conv;
+		//TODO get rid of to!(TokenType)
 		this.type = to!(TokenType)(c);
 		this.line = line;
 		this.col = col;
+	}
+
+	string toString() {
+		import std.conv;
+		return "Type : " ~ to!string(type) ~ " Val : " ~  to!string(string_id_or_value) ~ " Line: " ~ to!string(line) ~ " Colum :" ~ to!string(col);
 	}
 
 	bool opEquals(TokenType that) {

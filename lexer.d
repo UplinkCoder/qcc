@@ -61,7 +61,7 @@ struct Lexer {
 			case '#' :
 				return lex_pp();
 
-			case '<','>','[',']','{','}','(',')','.',';','*',',' :
+			case '[',']','{','}','(',')','.',';','*',',' :
 				pos++;
 				return Token(c,line,col++);
 
@@ -132,7 +132,8 @@ struct Lexer {
 		string str;
 		int _col = col;
 		while (_source[0] != ' ' && _source[0] != ',' && _source[0] != '(' &&  _source[0] != ')'
-			   && _source[0] != ';'  && _source[0] != '[' && _source[0] != ']')  {
+				&& _source[0] != ';'  && _source[0] != '[' && _source[0] != ']' && _source[0] != '.'
+				&& _source[0] != '*') {
 			str ~= _source[0];
 			pos++; 
 			col++;
@@ -148,7 +149,8 @@ struct Lexer {
 		int value;
 		int _col = col;
 		while (_source[0] != ' ' && _source[0] != ',' && _source[0] != '(' &&  _source[0] != ')'
-			   && _source[0] != ';'  && _source[0] != '[' && _source[0] != ']')  {
+			   && _source[0] != ';'  && _source[0] != '[' && _source[0] != ']' && _source[0] != '.'
+			   && _source[0] != '*') {
 			value += (_source[0] - '0') * ((col - _col)^10);
 			pos++;
 			col++;
