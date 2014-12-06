@@ -5,7 +5,7 @@ enum TokenType : int {
 	
 	BOF = -9,
 
-	PP_INCLUDE = 1, 
+	PP_INCLUDE = -1, 
 //	ANGLE_BRACKET_OPEN = '<',
 //	ANGLE_BRACKET_CLOSE = '>',
 	BRACKET_OPEN = '[',

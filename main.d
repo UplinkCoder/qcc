@@ -14,14 +14,16 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 	`;
-	immutable string s2 = `
-#include "stdio.h"
-("Hello World");
-`;
 
-	writeln(s2);
+	writeln(source);
 	writeln("Tokenized Output : ");
-	writeln(Lexer().lex(source));
+	auto lexer = Lexer();
+	auto tokens = lexer.lex(source);
+	foreach(token;tokens) {
+		writeln(token);
+	}
+	writeln(lexer.intrmap);
+	
 
 	// Lets the user press <Return> before program returns
 	stdin.readln();

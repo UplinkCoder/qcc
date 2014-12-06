@@ -1,0 +1,13 @@
+<DProject>
+ <ProjectGuid>01326260-ac2e-4f49-8866-8fe7f79d7c7c</ProjectGuid>
+ <Config name="Debug">
+  <!-- default to defaults -->
+ </Config>
+ <Config name="Debug">
+  </Config>
+ <Folder name="qcc">
+  <File path="main.d" />
+  <File path="token.d" />
+  <File path="lexer.d" />
+ </Folder>
+</DProject>

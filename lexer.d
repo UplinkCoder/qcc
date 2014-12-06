@@ -57,8 +57,6 @@ struct Lexer {
 		if (pos>=source.length) return Token(cast(char)-8,line,col);
 		_source = source [pos .. $];
 		char c = _source[0];
-		import std.stdio;
-		writeln("first char ",c ," at ", pos);
 		switch (c) {
 			case '#' :
 				return lex_pp();
@@ -92,7 +90,7 @@ struct Lexer {
 	}
 
 	
-	Token lex_pp() {;
+	Token lex_pp() {
 	
 	assert(_source[0] == '#');
 
@@ -133,16 +131,13 @@ struct Lexer {
 	Token lex_identifier() {
 		string str;
 		int _col = col;
-		while (_source[0] != ' ' && _source[0] != ',' && _source[0] != '(' &&  _source[0] != ')' && _source[0] != ';')  {
+		while (_source[0] != ' ' && _source[0] != ',' && _source[0] != '(' &&  _source[0] != ')'
+			   && _source[0] != ';'  && _source[0] != '[' && _source[0] != ']')  {
 			str ~= _source[0];
 			pos++; 
 			col++;
 			_source = _source[1 .. $];
 		}
-
-		pos++;
-		col++;
-		_source = _source[1 .. $];
 		
 		auto strId = getStringId(str);
 		
@@ -152,7 +147,8 @@ struct Lexer {
 	Token lex_integer_literal() {
 		int value;
 		int _col = col;
-		while (_source[0] != ' ' && _source[0] != ',' && _source[0] != '(' &&  _source[0] != ')' && _source[0] != ';')  {
+		while (_source[0] != ' ' && _source[0] != ',' && _source[0] != '(' &&  _source[0] != ')'
+			   && _source[0] != ';'  && _source[0] != '[' && _source[0] != ']')  {
 			value += (_source[0] - '0') * ((col - _col)^10);
 			pos++;
 			col++;
