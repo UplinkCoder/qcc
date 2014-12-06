@@ -1,6 +1,5 @@
 ﻿module qcc.token;
 
-import qcc.source;
 enum TokenType : int {
 	INVALID = 0,
 	

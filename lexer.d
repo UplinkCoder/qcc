@@ -1,6 +1,5 @@
 ﻿module qcc.lexer;
 
-import qcc.source;
 import std.stdio;
 
 /*
@@ -92,20 +91,19 @@ struct Lexer {
 		}
 	}
 
-	Token lex_pp() {
-		import std.conv;
-		assert(_source[0] == '#');
-		_source = _source[1.. $];
-		// use std.algorithm.startsWith
-		switch (_source[0 .. "include".length]) with (TokenType) {
-			case "include" :
-				auto tok = Token(PP_INCLUDE, line, col);
-				pos += "#include".length;
-				col += "#include".length;
-				return tok;
-				//throw instead of assert
-			default : assert(0, "no know PreProcessor Decl at " ~ to!string(line) ~ ":" ~ to!string(col)~ _source);
-		}
+	
+	Token lex_pp() {;
+	
+	assert(_source[0] == '#');
+
+	auto tok = lex_identifier(); 
+	if(tok.string_id_or_value == getStringId("#include")) {
+		return Token(TokenType.PP_INCLUDE, 0, tok.line, tok.col);
+	}
+
+	//throw instead of assert
+	import std.conv;
+	assert(0, "no know PreProcessor Decl at " ~ to!string(line) ~ ":" ~ to!string(col)~ _source);
 	}
 
 	Token lex_string() {
@@ -155,9 +153,9 @@ struct Lexer {
 		int value;
 		int _col = col;
 		while (_source[0] != ' ' && _source[0] != ',' && _source[0] != '(' &&  _source[0] != ')' && _source[0] != ';')  {
+			value += (_source[0] - '0') * ((col - _col)^10);
 			pos++;
 			col++;
-			value += (_source[0] - '0') * ((col - _col)^10);
 			_source = _source[1 .. $];
 		}
 
