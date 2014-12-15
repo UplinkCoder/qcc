@@ -12,8 +12,7 @@ import std.stdio;
  TOKEN_CURLY_BRACKET_CLOSE
  TOKEN_EOF
  */
-
-
+ 
 struct Lexer {
 	import qcc.token;
 	size_t[string] intrmap;
@@ -52,6 +51,17 @@ struct Lexer {
 			return intrmap[s] = n;
 		}
 	}
+	/// lookahead n Tokens
+	Token la(ubyte n=0) {
+		auto _pos = pos;
+		Token tok;
+		for (int i=0;i<n;i++) {
+			tok = getToken();
+		}
+		pos = _pos;
+
+		return tok;
+	}
 
 	Token getToken() {
 		if (pos>=source.length) return Token(cast(char)-8,line,col);
@@ -77,7 +87,7 @@ struct Lexer {
 				
 			case ' ','\t' :
 				pos++;
-				col++;
+ 				col++;
 				return getToken();
 			case '\n' :
 				pos++;
@@ -95,7 +105,7 @@ struct Lexer {
 	assert(_source[0] == '#');
 
 	auto tok = lex_identifier(); 
-	if(tok.string_id_or_value == getStringId("#include")) {
+	if(tok.value.stringId == getStringId("#include")) {
 		return Token(TokenType.PP_INCLUDE, 0, tok.line, tok.col);
 	}
 
