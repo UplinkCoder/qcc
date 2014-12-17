@@ -29,20 +29,14 @@ enum TokenType : int {
 }
 
 struct Token {
-	union Value {
-		size_t stringId;
-		ulong numericValue;
-		char characterValue;
-	}
-
 	TokenType type;
-	Value value;
+	size_t string_id_or_value;
 	int line = -1;
 	int col = -1;
 
 	this(TokenType type, size_t string_id_or_value, int line, int col) {
 		this.type = type;
-		this.value = string_id_or_value; 
+		this.string_id_or_value = string_id_or_value; 
 		this.line = line;
 		this.col = col;
 	}
@@ -54,6 +48,10 @@ struct Token {
 		this.line = line;
 		this.col = col;
 	}
+
+	 @property uint length() {
+		 assert(0, "length is on the TODO list");
+	 }
 
 	string toString() {
 		import std.conv;

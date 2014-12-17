@@ -1,19 +1,18 @@
 ﻿module qcc.driver;
 
 import qcc.lexer;
-import qcc.parser;
 
 import std.stdio;
 
 void main(string[] args)
 {
-	writeln("Welcome to the QCC Compiler \n Test Input :");
+	writeln("Welcome to the QCC Compiler");
 
 	immutable string source = `
 #include "stdio.h"
 int main(int argc, char *argv[]) {
-	printf("Hello World"); 
-	return 0;
+	printf("Hello World");
+	return 42;
 }
 	`;
 
@@ -25,7 +24,6 @@ int main(int argc, char *argv[]) {
 		writeln(token);
 	}
 	writeln(lexer.intrmap);
-	auto ptree = Parser().parse(tokens);
 	
 
 	// Lets the user press <Return> before program returns
