@@ -1,7 +1,6 @@
 ﻿module qcc.driver;
 
 import qcc.lexer;
-
 import std.stdio;
 
 void main(string[] args)

@@ -49,5 +49,7 @@
     <Compile Include="source.d" />
     <Compile Include="token.d" />
     <Compile Include="lexer.d" />
+    <Compile Include="parser.d" />
+    <Compile Include="ast.d" />
   </ItemGroup>
 </Project>
