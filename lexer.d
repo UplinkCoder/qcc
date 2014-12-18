@@ -43,7 +43,7 @@ struct Lexer {
 	}
 
 	Token getToken() {
-		if (pos>=source.length) return Token(TokenType.EOF,line,col);
+		if (pos>=source.length) return Token(TokenType.EOF, line, col);
 		char c = source [pos .. $][0];
 		
 		if (isSingleToken(c)) {
@@ -153,13 +153,16 @@ struct Lexer {
 	}
 
 	Token lex_integer_literal() {
-		int value;
 		int _col = col;
+		int value;
 		while (isNumber(source[pos .. $][0])) {
-
-			value += (source[pos .. $][0] - '0') * ((col - _col)^10);
 			pos++;
 			col++;
+		}
+
+		for (int i=col - _col; i>0;--i) {
+			import std.math:pow;
+			value += (source[pos-i .. $][0] - '0') * pow(10,i-1);
 		}
 
 		return Token(TokenType.INTEGER_LITERAL, value, line, col);

@@ -25,11 +25,11 @@ enum TokenType : int {
 	MINUS = '-',
 	STAR = '*',
 	SLASH = '/',
-	INT = -5,
+/*	INT = -5,
 	CHAR = -6,
 	RETURN = -7,
-
-	EOF = cast(char)-8
+*/
+	EOF = -8
 }
 
 struct Token {
@@ -49,8 +49,12 @@ struct Token {
 		import std.conv;
 		//TODO get rid of to!(TokenType)
 		this.type = to!(TokenType)(c);
-		this.line = line;
-		this.col = col;
+
+		this = Token(type, line, col);
+	}
+
+	this(TokenType type, int line, int col) {
+		this = Token(type, 0, line, col);
 	}
 
 	 @property uint length() {

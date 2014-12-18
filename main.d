@@ -13,7 +13,7 @@ void main(string[] args)
 int main(int argc, char *argv[]) {
 	int a = (4+4)*8;
 	printf("Hello World"); 
-	return 42;
+	return 1234;
 }
 	`;
 
