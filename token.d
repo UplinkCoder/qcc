@@ -17,10 +17,14 @@ enum TokenType : int {
 	IDENTIFIER = -2 ,		 // needs context
 	STRING_LITERAL = -3 ,	 // needs context
 	INTEGER_LITERAL = -4, // needs context
+	EQUALS = '=',
 	DOT = '.',
 	COMMA = ',',
 	SEMICOLON = ';',
+	PLUS = '+',
+	MINUS = '-',
 	STAR = '*',
+	SLASH = '/',
 	INT = -5,
 	CHAR = -6,
 	RETURN = -7,

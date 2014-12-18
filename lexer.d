@@ -43,7 +43,6 @@ struct Lexer {
 	}
 
 	Token getToken() {
-		writeln(pos);
 		if (pos>=source.length) return Token(TokenType.EOF,line,col);
 		char c = source [pos .. $][0];
 		
@@ -102,9 +101,6 @@ struct Lexer {
 		assert(source[pos .. $][0] == '#');
 
 		auto tok = lex_identifier();
-		writeln(getStringId("#include"));
-		writeln(tok);
-		writeln(getStringId("#include"));
 		if(tok.string_id_or_value == getStringId("#include")) {
 			return Token(TokenType.PP_INCLUDE, 0, tok.line, tok.col);
 		}
@@ -145,13 +141,12 @@ struct Lexer {
 			col++;
 		}
 
-		while (!isSingleToken(source[pos .. $][0]) && 
-			   (isIdentifier(source[pos .. $][0]) || isNumber(source[pos .. $][0])) ) {
+		while (isIdentifier(source[pos .. $][0]) || isNumber(source[pos .. $][0]) ) {
 			str ~= source[pos .. $][0];
 			pos++; 
 			col++;
 		}
-		writeln(str);
+
 		auto strId = getStringId(str);
 		
 		return Token(TokenType.IDENTIFIER, strId, line, _col);

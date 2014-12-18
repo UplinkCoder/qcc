@@ -11,7 +11,8 @@ void main(string[] args)
 	immutable string source = `
 #include "stdio.h"
 int main(int argc, char *argv[]) {
-	printf("Hello World");
+	int a = (4+4)*8;
+	printf("Hello World"); 
 	return 42;
 }
 	`;
@@ -24,6 +25,7 @@ int main(int argc, char *argv[]) {
 		writeln(token);
 	}
 	writeln(lexer.intrmap);
+//	auto ptree = Parser().parse(tokens);
 	
 
 	// Lets the user press <Return> before program returns
