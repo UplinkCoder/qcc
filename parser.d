@@ -116,11 +116,10 @@ int main(int argc, char *argv[]) {
 				if (peek(1) == COMMA) {
 					isDecl = true;
 					assert(peek == IDENTIFIER);
-					params ~= new VariableDeclaration(pop(), Token.init);
+					params ~= new VariableDeclaration(match(IDENTIFIER), Token.init);
 				} else {
-					std.stdio.writeln(peek(0),peek(1));
 					assert(peek(1) == IDENTIFIER);
-					params ~= new VariableDeclaration(pop(), pop());
+					params ~= new VariableDeclaration(match(IDENTIFIER), match(IDENTIFIER));
 				}
 				
 				match(COMMA);
@@ -154,10 +153,10 @@ int main(int argc, char *argv[]) {
 				expr = parseParenExpression();
 				break;
 			case INTEGER_LITERAL :
-				expr = new IntegerLiteral(pop());
+				expr = new IntegerLiteral(match(INTEGER_LITERAL));
 				break;
 			case STRING_LITERAL :
-				expr = new StringLiteral(pop());
+				expr = new StringLiteral(match(STRING_LITERAL));
 				break;
 			default : assert(0, "cannot parse expressoin");
 		}
