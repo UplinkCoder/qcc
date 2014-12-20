@@ -1,6 +1,8 @@
 ﻿module qcc.driver;
 
 import qcc.lexer;
+import qcc.parsetree;
+import qcc.parser;
 import std.stdio;
 
 void main(string[] args)
@@ -9,8 +11,9 @@ void main(string[] args)
 
 	immutable string source = `
 #include "stdio.h"
-int main(int argc, char *argv[]) {
-	int a = (4+4)*8;
+int main() {
+	int a;
+	a = (4+4)*8;
 	printf("Hello World"); 
 	return 1234;
 }
@@ -24,8 +27,8 @@ int main(int argc, char *argv[]) {
 		writeln(token);
 	}
 	writeln(lexer.intrmap);
-//	auto ptree = Parser().parse(tokens);
-	
+	auto ptree = Parser().parseCompilationUnit(tokens);
+	writeln((cast(FunctionDefinition)(ptree.declarations[0])).function_body.statements);
 
 	// Lets the user press <Return> before program returns
 	stdin.readln();

@@ -50,6 +50,6 @@
     <Compile Include="token.d" />
     <Compile Include="lexer.d" />
     <Compile Include="parser.d" />
-    <Compile Include="ast.d" />
+    <Compile Include="parsetree.d" />
   </ItemGroup>
 </Project>

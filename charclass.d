@@ -1,4 +1,4 @@
-﻿module qcc.charclass;
+module qcc.charclass;
 
 bool isAlphaNumeric(char c) {
 	return (isAlpha(c) || isNumeric(c));
@@ -23,7 +23,7 @@ bool isUpperAlpha(char c) {
 }
 
 
-unittest {
+/*unittest {
 	assert(isLowerAlpha('l'));
 	assert(isLowerAlpha('z'));
 	assert(isLowerAlpha('a'));
@@ -31,4 +31,4 @@ unittest {
 	assert(!isLowerAlpha('A'));
 	assert(!isLowerAlpha('!'));
 
-}
+}*/

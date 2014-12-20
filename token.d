@@ -25,10 +25,10 @@ enum TokenType : int {
 	MINUS = '-',
 	STAR = '*',
 	SLASH = '/',
-/*	INT = -5,
-	CHAR = -6,
+//	INT = -5,
+//	CHAR = -6,
 	RETURN = -7,
-*/
+
 	EOF = -8
 }
 

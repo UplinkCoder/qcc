@@ -1,9 +1,34 @@
 ﻿module qcc.lexer;
 import std.stdio;
 
+static immutable string[] reservedStrings = [
+	"return",
+	"#include",
+] ;
+
+const (size_t[string]) getMap(string[] reserved)() pure {
+	size_t[string] res;
+	foreach (i,s;reserved) {
+		res[s] = i;
+	}
+	return res;
+}
+
+int getReservedStringId(string s)() {
+	foreach(immutable int i,immutable _s;reservedStrings) {
+		if (_s == s) {
+			return i+1;
+		}
+	}
+	assert(0);
+}
+
+
 struct Lexer {
 	import qcc.token;
 	size_t[string] intrmap;
+
+	//intrmap = getMap!reservedStrings;
 
 	
 	string source;
@@ -12,7 +37,12 @@ struct Lexer {
 	uint pos; ///current position in the string
 
 	Token[] lex(string source) {
-		writeln(isIdentifier(' '));
+
+		foreach (i,s;reservedStrings) {
+			intrmap[s] = i+1;
+		}
+		writeln(intrmap);
+
 		this.source = source;
 		import std.stdio;
 		Token[] ret;
@@ -34,7 +64,7 @@ struct Lexer {
 	}
 
 	size_t getStringId(string s) {
-		size_t n = intrmap.length+1;
+		size_t n = intrmap.length+reservedStrings.length;
 		if (auto id = intrmap.get(s,0)) {
 			return id;
 		} else {
@@ -78,7 +108,7 @@ struct Lexer {
 	bool isWhiteSpace(char c) {
 		return (c == ' ' || c == '\t' || c == '\n');
 	}
-	
+
 	bool isSingleToken(char c) {
 		return (c == ' ' || c == '\t'|| c == '.' || c == ';'
 			|| c == '('  || c == ')' || c == '[' || c == ']'
@@ -101,7 +131,7 @@ struct Lexer {
 		assert(source[pos .. $][0] == '#');
 
 		auto tok = lex_identifier();
-		if(tok.string_id_or_value == getStringId("#include")) {
+		if(tok.string_id_or_value == getReservedStringId!("#include")) {
 			return Token(TokenType.PP_INCLUDE, 0, tok.line, tok.col);
 		}
 
@@ -148,8 +178,21 @@ struct Lexer {
 		}
 
 		auto strId = getStringId(str);
-		
-		return Token(TokenType.IDENTIFIER, strId, line, _col);
+		TokenType type = TokenType.IDENTIFIER;
+
+		switch (strId) {
+			case getReservedStringId!("return") :
+				type = TokenType.RETURN;
+			break;
+			case getReservedStringId!("#include") :
+				type = TokenType.PP_INCLUDE;
+			break;
+			default : 
+				type = TokenType.IDENTIFIER;
+			break;
+		}
+
+		return Token(type, strId, line, _col);
 	}
 
 	Token lex_integer_literal() {
