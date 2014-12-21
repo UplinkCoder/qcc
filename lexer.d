@@ -2,6 +2,8 @@
 import std.stdio;
 
 static immutable string[] reservedStrings = [
+	"union",
+	"struct",
 	"return",
 	"#include",
 ] ;
@@ -64,7 +66,7 @@ struct Lexer {
 	}
 
 	size_t getStringId(string s) {
-		size_t n = intrmap.length+reservedStrings.length;
+		size_t n = intrmap.length+1;
 		if (auto id = intrmap.get(s,0)) {
 			return id;
 		} else {
@@ -181,6 +183,12 @@ struct Lexer {
 		TokenType type = TokenType.IDENTIFIER;
 
 		switch (strId) {
+			case getReservedStringId!("union") :
+				type = TokenType.UNION;
+				break;
+			case getReservedStringId!("struct") :
+				type = TokenType.STRUCT;
+				break;
 			case getReservedStringId!("return") :
 				type = TokenType.RETURN;
 			break;

@@ -25,8 +25,8 @@ enum TokenType : int {
 	MINUS = '-',
 	STAR = '*',
 	SLASH = '/',
-//	INT = -5,
-//	CHAR = -6,
+	STRUCT = -5,
+	UNION = -6,
 	RETURN = -7,
 
 	EOF = -8

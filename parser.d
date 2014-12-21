@@ -6,23 +6,7 @@ import qcc.lexer;
 
 import visitor;
 
-struct Parser
-{
-	/*
-	 * #include "stdio.h"
-int main(int argc, char *argv[]) {
-	printf("Hello World"); 
-	int a = (4+4)*8;
-	return 1234;
-}
-*/
-	/*
-	 * PreProcessor_include(path)
-	 * FunctionDefinition(FunctionDeclaration([Prameter(Identifier,Identifier), Parameter(Identifier,star,identifer,bracket
-	 * _open,bracket_close),Block (
-	 * [AssignmentStatement (VariableDeclaration(),BinaryExpression(ParenExpression(BinaryExpression()),))
-	 * )
-	 */
+struct Parser {
 
 	bool isOperator(TokenType t) {
 		return (t == TokenType.PLUS || t == TokenType.MINUS 
@@ -51,18 +35,20 @@ int main(int argc, char *argv[]) {
 		       peek(1).type == TokenType.EQUALS &&
 		       peek(2).type != TokenType.EQUALS);
 
-		auto variable = match(TokenType.IDENTIFIER);
+		auto identifier_token = match(TokenType.IDENTIFIER);
+
 		match(TokenType.EQUALS);
 		auto expr = parseExpression();
 		match(TokenType.SEMICOLON);
 
-		return new AssignmentStatement(variable, expr);
+		return new AssignmentStatement(identifier_token, expr);
 	}
 
 	Declaration parseDeclaration() {
 		with (TokenType) {
-			std.stdio.writeln(peek(0).type,peek(1).type);
-			if(peek(0).type == IDENTIFIER && peek(1).type == IDENTIFIER && peek(2).type == PAREN_OPEN) {
+			if(peek(0).type == STRUCT && peek(1).type == IDENTIFIER && peek(2).type == CURLY_BRACE_OPEN) {
+				return parseStructDeclaration();
+			} else if(peek(0).type == IDENTIFIER && peek(1).type == IDENTIFIER && peek(2).type == PAREN_OPEN) {
 				return parseFunctionDeclaration();
 			} else if (peek(0).type == IDENTIFIER && peek(1).type == IDENTIFIER && peek(2).type == SEMICOLON) {
 				return parseVaraibleDeclaration();
@@ -90,6 +76,20 @@ int main(int argc, char *argv[]) {
 
 		return new CompilationUnit(declarations);
 	
+	}
+
+	StructDeclaration parseStructDeclaration() {
+		Declaration[] members;
+		match(TokenType.STRUCT);
+		auto id = match(TokenType.IDENTIFIER);
+		match(TokenType.CURLY_BRACE_OPEN);
+
+		while (peek.type != TokenType.CURLY_BRACE_CLOSE) {
+			members ~= parseDeclaration();
+		}
+		match(TokenType.CURLY_BRACE_CLOSE);
+
+		return new StructDeclaration(members);
 	}
 
 	VariableDeclaration parseVaraibleDeclaration() {
@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
 			if (!isDecl && peek() == CURLY_BRACE_OPEN) {
 				// Not just a function declaration but a function definition
 				auto function_decl = new FunctionDeclaration(return_type, function_name, params);
-				auto function_body = parseBlock();
+				auto function_body = parseBlockStatement();
 				return new FunctionDefinition(function_decl, function_body);
 			} else {
 				match(SEMICOLON);
@@ -138,6 +138,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
+
 	ParenExpression parseParenExpression () {
 		match(TokenType.PAREN_OPEN);
 		auto expr = parseExpression();
@@ -184,7 +185,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	Statement parseStatement() {
-		std.stdio.writeln(peek(0),peek(1),peek(2));
+
 		if (peek(0).type == TokenType.IDENTIFIER &&
 		    peek(1).type == TokenType.EQUALS &&
 		    peek(2).type != TokenType.EQUALS) {
@@ -210,7 +211,7 @@ int main(int argc, char *argv[]) {
 
 	}
 
-	BlockStatement parseBlock() {
+	BlockStatement parseBlockStatement() {
 		Statement[] stmts;
 		with (TokenType) {
 			match(CURLY_BRACE_OPEN);

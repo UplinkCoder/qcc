@@ -1,20 +1,26 @@
 ﻿module qcc.parsetree;
 import qcc.token;
 
-abstract class Node {}
+interface Node {}
 
-abstract class Expression : Node {}
+interface Expression : Node {}
 
-abstract class Statement : Node {}
+interface Statement : Node {}
 
-abstract class Declaration : Node {}
+interface Declaration : Node {}
 
-abstract class Annotation : Node {}
+interface Annotation : Node {}
 
-abstract class Reference : Node {}
+interface Reference : Node {}
 
-abstract class ConstantExpression : Expression {}
+interface ConstantExpression : Expression {}
 
+class StructDeclaration : Declaration {
+	Declaration[] members;
+	this(Declaration[] members) {
+		this.members = members;
+	}
+}
 
 class AssignmentStatement : Statement {
 	Token variable;
@@ -24,6 +30,10 @@ class AssignmentStatement : Statement {
 		this.variable = variable;
 		this.expr = expr;
 	}
+}
+
+class Identifier : Reference {
+	Declaration target;
 }
 
 class BinaryExpression : Expression {

@@ -11,12 +11,24 @@ void main(string[] args)
 
 	immutable string source = `
 #include "stdio.h"
+
+struct s {
+	int x;
+	int y;
+	struct s2 {
+		int x2;
+		int y2;
+	}
+}
+
 int main() {
 	int a;
 	a = (4+4)*8;
 	printf("Hello World"); 
 	return 1234;
 }
+
+int b;
 	`;
 
 	writeln(source);
@@ -28,7 +40,12 @@ int main() {
 	}
 	writeln(lexer.intrmap);
 	auto ptree = Parser().parseCompilationUnit(tokens);
-	writeln((cast(FunctionDefinition)(ptree.declarations[0])).function_body.statements);
+	foreach(decl;ptree.declarations) { 
+		writeln (decl); 
+	}
+	foreach(stmt;(cast(FunctionDefinition)(ptree.declarations[0])).function_body.statements) {
+		writeln(stmt);
+	}
 
 	// Lets the user press <Return> before program returns
 	stdin.readln();
