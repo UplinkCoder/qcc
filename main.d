@@ -9,7 +9,7 @@ void main(string[] args)
 {
 	writeln("Welcome to the QCC Compiler");
 
-	immutable string source = `
+	immutable string test_source = `
 #include "stdio.h"
 
 struct s {
@@ -18,8 +18,8 @@ struct s {
 	struct s2 {
 		int x2;
 		int y2;
-	}
-}
+	} ;
+} ;
 
 int main() {
 	int a;
@@ -30,7 +30,8 @@ int main() {
 
 int b;
 	`;
-
+	import std.file;
+	auto source = (args.length>1) ? cast(immutable(char[])) read(args[1]) : test_source;
 	writeln(source);
 	writeln("Tokenized Output : ");
 	auto lexer = Lexer();
@@ -43,7 +44,7 @@ int b;
 	foreach(decl;ptree.declarations) { 
 		writeln (decl); 
 	}
-	foreach(stmt;(cast(FunctionDefinition)(ptree.declarations[0])).function_body.statements) {
+	foreach(stmt;(cast(FunctionDefinition)(ptree.declarations[1])).function_body.statements) {
 		writeln(stmt);
 	}
 
