@@ -8,14 +8,6 @@ static immutable string[] reservedStrings = [
 	"#include",
 ] ;
 
-const (size_t[string]) getMap(string[] reserved)() pure {
-	size_t[string] res;
-	foreach (i,s;reserved) {
-		res[s] = i;
-	}
-	return res;
-}
-
 int getReservedStringId(string s)() {
 	foreach(immutable int i,immutable _s;reservedStrings) {
 		if (_s == s) {
@@ -43,7 +35,6 @@ struct Lexer {
 		foreach (i,s;reservedStrings) {
 			intrmap[s] = i+1;
 		}
-		writeln(intrmap);
 
 		this.source = source;
 		import std.stdio;
@@ -129,17 +120,9 @@ struct Lexer {
 	
 	Token lex_pp() {
 		import std.stdio;
-		writeln("in lex_pp");
 		assert(source[pos .. $][0] == '#');
 
-		auto tok = lex_identifier();
-		if(tok.string_id_or_value == getReservedStringId!("#include")) {
-			return Token(TokenType.PP_INCLUDE, 0, tok.line, tok.col);
-		}
-
-		//throw instead of assert
-		import std.conv;
-		assert(0, "no know PreProcessor Decl at " ~ to!string(line) ~ ":" ~ to!string(col)~ source[pos .. $]);
+		return lex_identifier;
 	}
 
 	Token lex_string() {

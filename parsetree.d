@@ -15,6 +15,13 @@ interface Reference : Node {}
 
 interface ConstantExpression : Expression {}
 
+class IdentifierExpression : Expression {
+	Token id;
+	this(Token id) {
+		this.id = id;
+	}
+}
+
 class StructDeclaration : Declaration {
 	Declaration[] members;
 	this(Declaration[] members) {
@@ -91,21 +98,13 @@ class ParenExpression : Expression {
 	}
 }
 
-class CompilationUnit : Node {
+class CompilationUnit : Declaration {
 	Declaration[] declarations;
 
 	this (Declaration[] declarations) {
 		this.declarations = declarations;
 	}
 }
-
-//class VaraibleDefinition : VaraibleDeclaration {
-//	Expression value;
-//
-//	this(Expression value) {
-//		this.value = value;
-//	}
-//}
 
 class VariableDeclaration : Declaration {
 	Token type;
@@ -130,6 +129,7 @@ class FunctionDeclaration : Declaration {
 }
 
 class BlockStatement : Statement {
+	// BlockStatements are equivalent to Scopes
 	Statement[] statements;
 
 	this(Statement[] statements) {

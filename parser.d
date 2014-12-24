@@ -31,7 +31,7 @@ struct Parser {
 	}
 
 	AssignmentStatement parseAssignmentStatement() {
-		assert(peek().type == TokenType.IDENTIFIER &&
+		assert(peek(0).type == TokenType.IDENTIFIER &&
 		       peek(1).type == TokenType.EQUALS &&
 		       peek(2).type != TokenType.EQUALS);
 
@@ -88,7 +88,7 @@ struct Parser {
 			members ~= parseDeclaration();
 		}
 		match(TokenType.CURLY_BRACE_CLOSE);
-
+		match(TokenType.SEMICOLON);
 		return new StructDeclaration(members);
 	}
 
@@ -150,6 +150,9 @@ struct Parser {
 	Expression parseExpression() {
 		Expression expr;
 		switch (peek().type) with (TokenType) {
+			case IDENTIFIER : 
+				expr = new IdentifierExpression(match(IDENTIFIER));
+				break;
 			case PAREN_OPEN :
 				expr = parseParenExpression();
 				break;
@@ -185,7 +188,7 @@ struct Parser {
 	}
 
 	Statement parseStatement() {
-
+		std.stdio.writeln(peek(0),peek(1),peek(2));
 		if (peek(0).type == TokenType.IDENTIFIER &&
 		    peek(1).type == TokenType.EQUALS &&
 		    peek(2).type != TokenType.EQUALS) {
@@ -213,6 +216,7 @@ struct Parser {
 
 	BlockStatement parseBlockStatement() {
 		Statement[] stmts;
+		//TODO associate scope with BlockStatement
 		with (TokenType) {
 			match(CURLY_BRACE_OPEN);
 
