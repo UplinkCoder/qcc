@@ -23,7 +23,7 @@ struct s {
 
 int main() {
 	int a;
-	a = (4+4)*8+a;
+	a = (4+4)*8+a - add2(7);
 	int b;
 	b = 12 + a + b;
 	printf("Hello World"); 

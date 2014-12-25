@@ -1,5 +1,6 @@
 module qcc.parser;
 
+import std.typetuple;
 import qcc.token;
 import qcc.parsetree;
 import qcc.lexer;
@@ -7,6 +8,19 @@ import qcc.lexer;
 import visitor;
 
 struct Parser {
+
+	alias VariableDeclarationPattern = TypeTuple!([TokenType.IDENTIFIER, TokenType.IDENTIFIER, TokenType.SEMICOLON]);
+	alias FunctionDeclarationPattern = TypeTuple!([TokenType.IDENTIFIER, TokenType.IDENTIFIER, TokenType.PAREN_OPEN]);
+	alias StructDeclarationPattern = TypeTuple!([TokenType.STRUCT, TokenType.IDENTIFIER, TokenType.CURLY_BRACE_OPEN]);
+
+	bool matchesPattern(TokenType[] ttarr) {
+		foreach (ubyte i,e;ttarr) {
+			if (peek(i).type != e) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	bool isOperator(TokenType t) {
 		return (t == TokenType.PLUS || t == TokenType.MINUS 
@@ -46,11 +60,11 @@ struct Parser {
 
 	Declaration parseDeclaration() {
 		with (TokenType) {
-			if(peek(0).type == STRUCT && peek(1).type == IDENTIFIER && peek(2).type == CURLY_BRACE_OPEN) {
+			if(matchesPattern(StructDeclarationPattern)) {
 				return parseStructDeclaration();
-			} else if(peek(0).type == IDENTIFIER && peek(1).type == IDENTIFIER && peek(2).type == PAREN_OPEN) {
+			} else if(matchesPattern(FunctionDeclarationPattern)) {
 				return parseFunctionDeclaration();
-			} else if (peek(0).type == IDENTIFIER && peek(1).type == IDENTIFIER && peek(2).type == SEMICOLON) {
+			} else if (matchesPattern(VariableDeclarationPattern)) {
 				return parseVaraibleDeclaration();
 			}
 			assert(0);
@@ -94,9 +108,7 @@ struct Parser {
 
 	VariableDeclaration parseVaraibleDeclaration() {
 		with (TokenType) {
-			assert(peek(0).type == IDENTIFIER && 
-		    	   peek(1).type == IDENTIFIER &&
-		    	   peek(2).type == SEMICOLON);
+			assert(matchesPattern([IDENTIFIER, IDENTIFIER, SEMICOLON]), "Not a Variable Declaration");
 			auto decl = new VariableDeclaration(match(IDENTIFIER), match(IDENTIFIER));
 			match(SEMICOLON);
 			return decl;
@@ -139,7 +151,7 @@ struct Parser {
 		}
 	}
 
-	ParenExpression parseParenExpression () {
+	ParenExpression parseParenExpression () { 
 		match(TokenType.PAREN_OPEN);
 		auto expr = parseExpression();
 		match(TokenType.PAREN_CLOSE);
@@ -150,8 +162,15 @@ struct Parser {
 	Expression parseExpression() {
 		Expression expr;
 		switch (peek().type) with (TokenType) {
-			case IDENTIFIER : 
-				expr = new IdentifierExpression(match(IDENTIFIER));
+			case IDENTIFIER :
+				switch(peek(1).type) {
+					case PAREN_OPEN :
+						expr = parseCallExpression();
+					break;
+					default : 		
+						expr = new IdentifierExpression(match(IDENTIFIER));
+					break;
+				}
 				break;
 			case PAREN_OPEN :
 				expr = parseParenExpression();
@@ -164,7 +183,7 @@ struct Parser {
 				break;
 			default : assert(0, "cannot parse expressoin");
 		}
-
+	
 		if (isOperator(peek.type)) {
 			return new BinaryExpression(pop(), expr, parseExpression());
 		} else {
