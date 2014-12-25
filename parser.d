@@ -8,10 +8,15 @@ import qcc.lexer;
 import visitor;
 
 struct Parser {
+	alias ppIncludePattern = TypeTuple!([TokenType.PP_INCLUDE, TokenType.STRING_LITERAL]);
 
 	alias VariableDeclarationPattern = TypeTuple!([TokenType.IDENTIFIER, TokenType.IDENTIFIER, TokenType.SEMICOLON]);
 	alias FunctionDeclarationPattern = TypeTuple!([TokenType.IDENTIFIER, TokenType.IDENTIFIER, TokenType.PAREN_OPEN]);
 	alias StructDeclarationPattern = TypeTuple!([TokenType.STRUCT, TokenType.IDENTIFIER, TokenType.CURLY_BRACE_OPEN]);
+
+	alias CallExpressionPattern = TypeTuple!([TokenType.IDENTIFIER, TokenType.PAREN_OPEN]);
+
+	alias AssignmentStatementPattern = TypeTuple!([TokenType.IDENTIFIER, TokenType.EQUALS]);
 
 	bool matchesPattern(TokenType[] ttarr) {
 		foreach (ubyte i,e;ttarr) {
@@ -77,8 +82,8 @@ struct Parser {
 		this.tokens=tokens;
 		while (peek() != TokenType.EOF) with (TokenType) {
 
-			if(peek().type == PP_INCLUDE) {
-				//TODO use #include not skip it
+			if(matchesPattern(ppIncludePattern)) {
+				//TODO don't just skip pp_include
 				match(PP_INCLUDE);
 				match(STRING_LITERAL);
 			}
@@ -207,17 +212,14 @@ struct Parser {
 	}
 
 	Statement parseStatement() {
-		std.stdio.writeln(peek(0),peek(1),peek(2));
-		if (peek(0).type == TokenType.IDENTIFIER &&
-		    peek(1).type == TokenType.EQUALS &&
-		    peek(2).type != TokenType.EQUALS) {
+
+		if (matchesPattern(AssignmentStatementPattern)) {
 			return parseAssignmentStatement();
-		} else if (peek(0).type == TokenType.IDENTIFIER &&
-		           peek(1).type == TokenType.IDENTIFIER &&
-		           peek(2).type == TokenType.SEMICOLON) {
+		} else if (matchesPattern(StructDeclarationPattern) ||
+		           matchesPattern(VariableDeclarationPattern) ||
+		           matchesPattern(FunctionDeclarationPattern)) {
 			return new DeclarationStatement(parseDeclaration());
-		} else if (peek(0).type == TokenType.IDENTIFIER &&
-		           peek(1).type == TokenType.PAREN_OPEN) {
+		} else if (matchesPattern(CallExpressionPattern)) {
 			auto expr = parseCallExpression();
 			match(TokenType.SEMICOLON);
 
