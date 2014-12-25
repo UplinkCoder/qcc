@@ -5,40 +5,49 @@ enum TokenType : int {
 	
 	BOF = -9,
 
-	PP_INCLUDE = -1, 
-//	ANGLE_BRACKET_OPEN = '<',
-//	ANGLE_BRACKET_CLOSE = '>',
+
+	LESS = '<',
+	GREATER = '>',
 	BRACKET_OPEN = '[',
 	BRACKET_CLOSE= ']',
 	CURLY_BRACE_OPEN = '{',
 	CURLY_BRACE_CLOSE = '}',
 	PAREN_OPEN = '(', 
 	PAREN_CLOSE = ')',
+
+	TYPE = -1,
 	IDENTIFIER = -2 ,		 // needs context
 	STRING_LITERAL = -3 ,	 // needs context
 	INTEGER_LITERAL = -4, // needs context
-	EQUALS = '=',
+
+	ASSIGN = '=',
 	DOT = '.',
 	COMMA = ',',
+
 	SEMICOLON = ';',
 	PLUS = '+',
 	MINUS = '-',
 	STAR = '*',
 	SLASH = '/',
+
 	STRUCT = -5,
 	UNION = -6,
 	RETURN = -7,
 
-	EOF = -8
+	PP_INCLUDE = -8,
+	TYPEDEF = -9,
+
+	EQUALS = -10,
+	EOF = -11
 }
 
 struct Token {
 	TokenType type;
-	size_t string_id_or_value;
+	uint string_id_or_value;
 	int line = -1;
 	int col = -1;
 
-	this(TokenType type, size_t string_id_or_value, int line, int col) {
+	this(TokenType type, uint string_id_or_value, int line, int col) {
 		this.type = type;
 		this.string_id_or_value = string_id_or_value; 
 		this.line = line;

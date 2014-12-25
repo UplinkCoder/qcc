@@ -26,11 +26,15 @@ int main() {
 	a = (4+4)*8+a - add2(7);
 	int b;
 	b = 12 + a + b;
+	int c;
+	c = (2==5);
 	printf("Hello World"); 
 	return 1234;
 }
 
 int b;
+
+
 	`;
 	import std.file;
 	auto source = (args.length>1) ? cast(immutable(char[])) read(args[1]) : test_source;

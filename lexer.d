@@ -2,10 +2,23 @@
 import std.stdio;
 
 static immutable string[] reservedStrings = [
+	"unsigned",
+
+	"void",
+	"char",
+	"short",
+	"int",
 	"union",
 	"struct",
+
+	"for",
+	"continue",
+	"if",
+	"else",
 	"return",
+
 	"#include",
+	"#define",
 ] ;
 
 int getReservedStringId(string s)() {
@@ -19,8 +32,23 @@ int getReservedStringId(string s)() {
 
 
 struct Lexer {
+	public struct Identifier {
+		uint id;
+		string value;
+		bool isType;
+
+		bool opEquals(Identifier that) {
+			return this.id == that.id;
+		}
+
+	}
+
+	static bool isType(string s) {
+		return s == "void" || s == "char" ||  s == "short" || s == "int";
+	}
+
 	import qcc.token;
-	size_t[string] intrmap;
+	Identifier[string] intrmap;
 
 	//intrmap = getMap!reservedStrings;
 
@@ -29,40 +57,46 @@ struct Lexer {
 	int line;  /// current line we are on
 	int col; /// current colum in line
 	uint pos; ///current position in the string
+	Token[] tokens;
 
 	Token[] lex(string source) {
 
-		foreach (i,s;reservedStrings) {
-			intrmap[s] = i+1;
+		foreach (uint i,s;reservedStrings) {
+			intrmap[s] = Identifier(i+1,s, isType(s));
 		}
 
 		this.source = source;
 		import std.stdio;
-		Token[] ret;
+		tokens ~= Token(TokenType.BOF,0,0);
+
 		while(pos < source.length) {
 			auto tok = getToken();
 			if (tok.type != TokenType.INVALID) {
 				writeln(tok);
-				ret ~= tok;
+				tokens ~= tok;
 			} else {
 				assert(0,"INVALID TOKEN");
 			}
 		}
 
+		auto ret = tokens.dup;
+
 		this.source = "";
 		this.line = 0;
 		this.col = 0;
+		this.tokens = null;
 
 		return ret;
 	}
 
-	size_t getStringId(string s) {
-		size_t n = intrmap.length+1;
-		if (auto id = intrmap.get(s,0)) {
-			return id;
-		} else {
-			return intrmap[s] = n;
-		}
+	uint getStringId (string s) {
+		return getIdentifier(s, false).id;
+	}
+
+	Identifier getIdentifier(string s, bool isType) {
+		uint n = cast(uint) intrmap.length+1;
+		auto id = intrmap.get(s,Identifier.init);
+		return (id == Identifier.init) ? intrmap[s] = Identifier(n, s, isType) : id;
 	}
 
 	Token getToken() {
@@ -77,6 +111,12 @@ struct Lexer {
 				line++;
 			} else {
 				col++;
+			}
+
+			if (c == '=' && source[pos .. $][-0] == '=') {
+				col++;
+				pos++;
+				return Token(TokenType.EQUALS, line, col-2);
 			}
 
 			return isWhiteSpace(c) ? getToken() : Token(c,line,col-1);
@@ -106,7 +146,7 @@ struct Lexer {
 		return (c == ' ' || c == '\t'|| c == '.' || c == ';'
 			|| c == '('  || c == ')' || c == '[' || c == ']'
 			|| c == '+'  || c == '-' || c == '*' || c == '/'
-			|| c == '{'  || c == '}' || c == '&' || c == '|'
+			|| c == '{'  || c == '}' || c == '<' || c == '>'
 			|| c == '\n' || c == '='  || c == ',');
 	}
 
@@ -148,7 +188,7 @@ struct Lexer {
 
 	Token lex_identifier() {
 		string str;
-		int _col = col;
+		int _col = col; 
 
 		if (source[pos .. $][0] == '#') { //NOTE: special case for preProcessor stuff 
 			str ~= '#';
@@ -162,8 +202,11 @@ struct Lexer {
 			col++;
 		}
 
-		auto strId = getStringId(str);
-		TokenType type = TokenType.IDENTIFIER;
+		bool isType = (tokens[$-1].type == TokenType.STRUCT || tokens[$-1].type == TokenType.UNION) || isType(str);
+		auto id = getIdentifier(str.dup, isType);
+
+		auto strId = id.id;
+		TokenType type;
 
 		switch (strId) {
 			case getReservedStringId!("union") :
@@ -179,7 +222,7 @@ struct Lexer {
 				type = TokenType.PP_INCLUDE;
 			break;
 			default : 
-				type = TokenType.IDENTIFIER;
+				type = id.isType ? TokenType.TYPE : TokenType.IDENTIFIER;
 			break;
 		}
 

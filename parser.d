@@ -10,13 +10,15 @@ import visitor;
 struct Parser {
 	alias ppIncludePattern = TypeTuple!([TokenType.PP_INCLUDE, TokenType.STRING_LITERAL]);
 
-	alias VariableDeclarationPattern = TypeTuple!([TokenType.IDENTIFIER, TokenType.IDENTIFIER, TokenType.SEMICOLON]);
-	alias FunctionDeclarationPattern = TypeTuple!([TokenType.IDENTIFIER, TokenType.IDENTIFIER, TokenType.PAREN_OPEN]);
-	alias StructDeclarationPattern = TypeTuple!([TokenType.STRUCT, TokenType.IDENTIFIER, TokenType.CURLY_BRACE_OPEN]);
+	alias VariableDefinitionPattern = TypeTuple!([TokenType.TYPE, TokenType.IDENTIFIER, TokenType.ASSIGN]);
+
+	alias VariableDeclarationPattern = TypeTuple!([TokenType.TYPE, TokenType.IDENTIFIER, TokenType.SEMICOLON]);
+	alias FunctionDeclarationPattern = TypeTuple!([TokenType.TYPE, TokenType.IDENTIFIER, TokenType.PAREN_OPEN]);
+	alias StructDeclarationPattern = TypeTuple!([TokenType.STRUCT, TokenType.TYPE, TokenType.CURLY_BRACE_OPEN]);
 
 	alias CallExpressionPattern = TypeTuple!([TokenType.IDENTIFIER, TokenType.PAREN_OPEN]);
 
-	alias AssignmentStatementPattern = TypeTuple!([TokenType.IDENTIFIER, TokenType.EQUALS]);
+	alias AssignmentStatementPattern = TypeTuple!([TokenType.IDENTIFIER, TokenType.ASSIGN]);
 
 	bool matchesPattern(TokenType[] ttarr) {
 		foreach (ubyte i,e;ttarr) {
@@ -29,7 +31,8 @@ struct Parser {
 
 	bool isOperator(TokenType t) {
 		return (t == TokenType.PLUS || t == TokenType.MINUS 
-		        || t == TokenType.STAR || t == TokenType.SLASH);
+		        || t == TokenType.STAR || t == TokenType.SLASH
+		        || t == TokenType.EQUALS);
 	}
 
 	uint pos;
@@ -50,13 +53,9 @@ struct Parser {
 	}
 
 	AssignmentStatement parseAssignmentStatement() {
-		assert(peek(0).type == TokenType.IDENTIFIER &&
-		       peek(1).type == TokenType.EQUALS &&
-		       peek(2).type != TokenType.EQUALS);
-
 		auto identifier_token = match(TokenType.IDENTIFIER);
 
-		match(TokenType.EQUALS);
+		match(TokenType.ASSIGN);
 		auto expr = parseExpression();
 		match(TokenType.SEMICOLON);
 
@@ -64,6 +63,7 @@ struct Parser {
 	}
 
 	Declaration parseDeclaration() {
+		std.stdio.writeln(peek(0).type," ",peek(1).type," ",peek(2).type," ",peek(3).type);
 		with (TokenType) {
 			if(matchesPattern(StructDeclarationPattern)) {
 				return parseStructDeclaration();
@@ -80,6 +80,8 @@ struct Parser {
 		Declaration[] declarations;
 
 		this.tokens=tokens;
+		match(TokenType.BOF);
+
 		while (peek() != TokenType.EOF) with (TokenType) {
 
 			if(matchesPattern(ppIncludePattern)) {
@@ -100,7 +102,7 @@ struct Parser {
 	StructDeclaration parseStructDeclaration() {
 		Declaration[] members;
 		match(TokenType.STRUCT);
-		auto id = match(TokenType.IDENTIFIER);
+		auto id = match(TokenType.TYPE);
 		match(TokenType.CURLY_BRACE_OPEN);
 
 		while (peek.type != TokenType.CURLY_BRACE_CLOSE) {
@@ -113,8 +115,8 @@ struct Parser {
 
 	VariableDeclaration parseVaraibleDeclaration() {
 		with (TokenType) {
-			assert(matchesPattern([IDENTIFIER, IDENTIFIER, SEMICOLON]), "Not a Variable Declaration");
-			auto decl = new VariableDeclaration(match(IDENTIFIER), match(IDENTIFIER));
+			assert(matchesPattern(VariableDeclarationPattern), "Not a Variable Declaration");
+			auto decl = new VariableDeclaration(match(TYPE), match(IDENTIFIER));
 			match(SEMICOLON);
 			return decl;
 		}
@@ -124,7 +126,7 @@ struct Parser {
 		bool isDecl;
 		VariableDeclaration[] params;
 		with (TokenType) {
-			Token return_type = match(IDENTIFIER);
+			Token return_type = match(TYPE);
 			Token function_name = match(IDENTIFIER);
 			match(PAREN_OPEN);
 			
@@ -132,11 +134,11 @@ struct Parser {
 			while(peek().type != PAREN_CLOSE) {
 				if (peek(1) == COMMA) {
 					isDecl = true;
-					assert(peek == IDENTIFIER);
-					params ~= new VariableDeclaration(match(IDENTIFIER), Token.init);
+					assert(peek == TYPE);
+					params ~= new VariableDeclaration(match(TYPE), Token.init);
 				} else {
 					assert(peek(1) == IDENTIFIER);
-					params ~= new VariableDeclaration(match(IDENTIFIER), match(IDENTIFIER));
+					params ~= new VariableDeclaration(match(TYPE), match(IDENTIFIER));
 				}
 				
 				match(COMMA);
@@ -166,6 +168,7 @@ struct Parser {
 	
 	Expression parseExpression() {
 		Expression expr;
+		std.stdio.writeln(peek(0).type," ",peek(1).type," ",peek(2).type);
 		switch (peek().type) with (TokenType) {
 			case IDENTIFIER :
 				switch(peek(1).type) {
