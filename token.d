@@ -2,9 +2,6 @@
 
 enum TokenType : int {
 	INVALID = 0,
-	
-	BOF = -9,
-
 
 	LESS = '<',
 	GREATER = '>',
@@ -15,10 +12,10 @@ enum TokenType : int {
 	PAREN_OPEN = '(', 
 	PAREN_CLOSE = ')',
 
-	TYPE = -1,
-	IDENTIFIER = -2 ,		 // needs context
-	STRING_LITERAL = -3 ,	 // needs context
-	INTEGER_LITERAL = -4, // needs context
+	TYPE = -1,				// needs context
+	IDENTIFIER = -2 ,		// needs context
+	STRING_LITERAL = -3 ,	// needs context
+	INTEGER_LITERAL = -4, 	// needs context
 
 	ASSIGN = '=',
 	DOT = '.',
@@ -35,14 +32,19 @@ enum TokenType : int {
 	RETURN = -7,
 
 	PP_INCLUDE = -8,
-	TYPEDEF = -9,
+	BOF = -9,
+	TYPEDEF = -10,
 
-	EQUALS = -10,
-	EOF = -11
+	EQUALS = -11,
+	EOF = -12,
+
+	IF = -13,
+	ELSE = -14,
 }
 
 struct Token {
 	TokenType type;
+
 	uint string_id_or_value;
 	int line = -1;
 	int col = -1;

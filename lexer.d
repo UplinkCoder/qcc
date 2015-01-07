@@ -8,6 +8,7 @@ static immutable string[] reservedStrings = [
 	"char",
 	"short",
 	"int",
+
 	"union",
 	"struct",
 
@@ -62,12 +63,12 @@ struct Lexer {
 	Token[] lex(string source) {
 
 		foreach (uint i,s;reservedStrings) {
-			intrmap[s] = Identifier(i+1,s, isType(s));
+			intrmap[s] = Identifier(i+1, s, isType(s));
 		}
 
 		this.source = source;
 		import std.stdio;
-		tokens ~= Token(TokenType.BOF,0,0);
+		tokens ~= Token(TokenType.BOF, 0, 0);
 
 		while(pos < source.length) {
 			auto tok = getToken();
@@ -96,6 +97,7 @@ struct Lexer {
 	Identifier getIdentifier(string s, bool isType) {
 		uint n = cast(uint) intrmap.length+1;
 		auto id = intrmap.get(s,Identifier.init);
+
 		return (id == Identifier.init) ? intrmap[s] = Identifier(n, s, isType) : id;
 	}
 
@@ -203,12 +205,18 @@ struct Lexer {
 		}
 
 		bool isType = (tokens[$-1].type == TokenType.STRUCT || tokens[$-1].type == TokenType.UNION) || isType(str);
-		auto id = getIdentifier(str.dup, isType);
+		auto id = getIdentifier(str, isType);
 
 		auto strId = id.id;
 		TokenType type;
 
 		switch (strId) {
+			case getReservedStringId!("if") :
+				type = TokenType.IF;
+				break;
+			case getReservedStringId!("else") :
+				type = TokenType.ELSE;
+				break;
 			case getReservedStringId!("union") :
 				type = TokenType.UNION;
 				break;
@@ -225,6 +233,15 @@ struct Lexer {
 				type = id.isType ? TokenType.TYPE : TokenType.IDENTIFIER;
 			break;
 		}
+
+		/*if (id.isType) {
+			ubyte stars;
+			while (getToken().type == TokenType.STAR) {
+				stars++;
+			}
+
+			return Token(TokenType.TYPE, stars, strId, line, _col);
+		}*/
 
 		return Token(type, strId, line, _col);
 	}

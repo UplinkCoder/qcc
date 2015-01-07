@@ -51,5 +51,12 @@
     <Compile Include="lexer.d" />
     <Compile Include="parser.d" />
     <Compile Include="parsetree.d" />
+    <Compile Include="dag.d" />
+    <Compile Include="cgen.d" />
+    <Compile Include="new_node.d" />
+    <Compile Include="pgen.d" />
+    <Compile Include="pgen_data.d" />
+    <Compile Include="pgen_parser.d" />
+    <Compile Include="visitor.d" />
   </ItemGroup>
 </Project>

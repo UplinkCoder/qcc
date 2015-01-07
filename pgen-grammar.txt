@@ -1,0 +1,56 @@
+Predefined_CharClasses {
+	Identifier {
+		['_'-'_','a'-'z','A'-'Z'][] identifier;
+	}
+
+	Number {
+		['0'-'9'][] number;
+	}
+}
+
+Group {
+	Identifier name, "{", PatternElement[] elements : "," 
+	/ Group[] groups, "}"
+}
+
+PatternElement {
+	
+	AlternativeElement {
+		PatternElement[] alternatives : "/"
+		/ PatternElement
+	}
+	
+	ConstantElement {
+		CharRange {
+			char rangeBegin, "-", char RangeEnd
+		}
+
+		RangeElement {
+			"[", CharRange[] ranges : ",", "]"
+		}
+
+		LookbehindElement {
+			"!lb", "(", string str_elm, ")"
+		}
+
+	}
+
+	NamedElement {
+		Identifier type, Identifier name
+	}
+	
+	ArrayElement {
+		Identifier type, "[]", Identifier name, 
+		? ":" : string lst_sep
+	}
+
+	ParenElement {
+		"(", PatternElement[] elements : ",", ")" 
+	}
+	
+	OptionalElement {
+		"?", ConstantElement ce, ":", PatternElement elem
+	}
+	
+	
+}

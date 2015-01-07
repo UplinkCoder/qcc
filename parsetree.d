@@ -15,6 +15,10 @@ interface Reference : Node {}
 
 interface ConstantExpression : Expression {}
 
+class Type : Reference {
+	Declaration typeDecl;
+}
+
 class IdentifierExpression : Expression {
 	Token id;
 	this(Token id) {
@@ -128,6 +132,17 @@ class FunctionDeclaration : Declaration {
 	}
 }
 
+class IfStatement : Statement {
+	Expression condition;
+	Statement thenStatement;
+	Statement elseStatement;
+
+	this(Expression condition, Statement thenStatement, Statement elseStatement) {
+		this.condition = condition;
+		this.thenStatement = thenStatement;
+		this.elseStatement = elseStatement;
+	}
+}
 class BlockStatement : Statement {
 	// BlockStatements are equivalent to Scopes
 	Statement[] statements;

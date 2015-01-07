@@ -1,13 +1,36 @@
 module qcc.parser;
 
 import std.typetuple;
+
 import qcc.token;
 import qcc.parsetree;
 import qcc.lexer;
 
 import visitor;
 
+struct Pattern(Element, Element[][] parr) {
+
+	const(Element[][]) patternStack() {
+		return parr;
+	}
+
+	bool matchesPattern(const Element[] stack) {
+		foreach(pat;parr) {
+			foreach (ubyte i,Element e;pat) {
+				if (stack[i] == e) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+}
+
+// alias TypePattern = TokenTypePattern!(TokenType.UNSIGNED ,'?', TokenType.TYPE, TokenType.STAR, '*' )
+// VaribleDeclarationPattern (TokenType.TYPE, (TokenType.STAR)*), TokenType.IDENTIFIER, TokenType.SEMICOLON)
 struct Parser {
+	//alias VariableDeclarationPattern = TokenTypePattern!VariableDeclaration([[TokenType.TYPE, TokenType.IDENTIFIER, TokenType.SEMICOLON]]);
+
 	alias ppIncludePattern = TypeTuple!([TokenType.PP_INCLUDE, TokenType.STRING_LITERAL]);
 
 	alias VariableDefinitionPattern = TypeTuple!([TokenType.TYPE, TokenType.IDENTIFIER, TokenType.ASSIGN]);
@@ -19,6 +42,7 @@ struct Parser {
 	alias CallExpressionPattern = TypeTuple!([TokenType.IDENTIFIER, TokenType.PAREN_OPEN]);
 
 	alias AssignmentStatementPattern = TypeTuple!([TokenType.IDENTIFIER, TokenType.ASSIGN]);
+	alias IfStatementPattern = TypeTuple!([TokenType.IF, TokenType.PAREN_OPEN]);
 
 	bool matchesPattern(TokenType[] ttarr) {
 		foreach (ubyte i,e;ttarr) {
@@ -52,6 +76,37 @@ struct Parser {
 		return pop();
 	}
 
+//
+//	Type parseType() {
+//		auto type_id = match(TokenType.TYPE);
+//		ubyte stars;
+//
+//		while (peek(0) == TokenType.STAR) {
+//			stars++; 
+//		}
+//
+//		return new Type(type_id, stars);
+//	}
+
+	IfStatement parseIfStatement() {
+		match(TokenType.IF);
+		match(TokenType.PAREN_OPEN);
+
+		auto cond = parseExpression();
+		match(TokenType.PAREN_CLOSE);
+
+		auto thn = parseStatement();
+		if (peek.type == TokenType.ELSE) {
+			match(TokenType.ELSE);
+			auto els = parseStatement();
+
+			return new IfStatement(cond, thn, els);
+		} else {
+			return new IfStatement(cond, thn, Statement.init);
+		}
+
+	}
+
 	AssignmentStatement parseAssignmentStatement() {
 		auto identifier_token = match(TokenType.IDENTIFIER);
 
@@ -64,6 +119,7 @@ struct Parser {
 
 	Declaration parseDeclaration() {
 		std.stdio.writeln(peek(0).type," ",peek(1).type," ",peek(2).type," ",peek(3).type);
+		std.stdio.writeln(matchesPattern(FunctionDeclarationPattern));
 		with (TokenType) {
 			if(matchesPattern(StructDeclarationPattern)) {
 				return parseStructDeclaration();
@@ -83,6 +139,8 @@ struct Parser {
 		match(TokenType.BOF);
 
 		while (peek() != TokenType.EOF) with (TokenType) {
+			import std.array;
+			import std.algorithm;
 
 			if(matchesPattern(ppIncludePattern)) {
 				//TODO don't just skip pp_include
@@ -115,7 +173,6 @@ struct Parser {
 
 	VariableDeclaration parseVaraibleDeclaration() {
 		with (TokenType) {
-			assert(matchesPattern(VariableDeclarationPattern), "Not a Variable Declaration");
 			auto decl = new VariableDeclaration(match(TYPE), match(IDENTIFIER));
 			match(SEMICOLON);
 			return decl;
@@ -134,10 +191,11 @@ struct Parser {
 			while(peek().type != PAREN_CLOSE) {
 				if (peek(1) == COMMA) {
 					isDecl = true;
-					assert(peek == TYPE);
+					assert(peek(0).type == TYPE);
 					params ~= new VariableDeclaration(match(TYPE), Token.init);
 				} else {
-					assert(peek(1) == IDENTIFIER);
+					std.stdio.writeln(peek(1).type);
+					assert(peek(1).type == IDENTIFIER);
 					params ~= new VariableDeclaration(match(TYPE), match(IDENTIFIER));
 				}
 				
